@@ -1,4 +1,11 @@
-﻿using KeePassLib.Security;
+﻿/************************************************************************************************************
+ * This code is created and maintened only for a research proposal. Please do not use for other proposes.   *
+ * Author: Th3 0bservator                                                                                   *
+ * Source: https://github.com/guibacellar/BisquillaRansomware                                               *
+ * Site: https://www.theobservator.net                                                                      *
+ ************************************************************************************************************/
+
+using KeePassLib.Security;
 using KeePassLib.Utility;
 using System;
 using System.Diagnostics;
