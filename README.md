@@ -33,4 +33,13 @@ This project has a 1 main objectives:
 **To Restore Files**: Run (BisquillaRansomware.exe --decrypt)
 
 # Malware Operation with Memory Injection
-TBD
+***Attention:*** The Ransomware dropper is locked to use a notepad++ process for injection.
+
+**To Hijack Files**: Just run the binary (BisquillaRansomware.exe)
+   * Open Notepad++
+   * Run (GoogleChromeUpdate.exe)
+
+**To Restore Files**: Just run the binary (BisquillaRansomware.exe)
+   * Open Notepad++
+   * Run (GoogleChromeUpdate.exe --decrypt) 
+   
