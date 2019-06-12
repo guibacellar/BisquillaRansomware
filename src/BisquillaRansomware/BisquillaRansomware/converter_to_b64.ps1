@@ -2,7 +2,7 @@
 
 $InputFile = "BisquillaRansomware.exe";
 $OutputFile = "BisquillaRansomware.bin";
-$ImageKeyUri = "https://extra.globo.com/incoming/5921498-9a8-629/w1920h1080/marte-1.jpg";
+$ImageKeyUri = "https://s2.glbimg.com/gyvEpPSlnA87YeaVxNCyCwtlIc0=/e.glbimg.com/og/ed/f/original/2018/05/02/pia22227-full.jpg";
 
 # Reguster OTP Encryption Method
 Add-Type -TypeDefinition @"

