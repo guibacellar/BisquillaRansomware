@@ -10,11 +10,12 @@ The evolution of NxRansomware (https://github.com/guibacellar/NxRansomware), Ful
 
 
 # Objectives
-This project has a 1 main objectives:
+This project has a 3 main objectives:
   * Improve previous Ransomware
-  * Create an Memory injectable ransomware 
+  * Create an Memory Injectable Ransomware 
+  * Design a Dropper that Downloads and Decrypt Malware from Internet using any Random Image as Decryption Key
 
-# Improvements
+# Improvements (Ransomware)
   * New File Encryption Algorithm (ChaCha20 from Keepass Source Code) - Previous: AES-256
   * New In Memory String Protection (Same as Keepass does) - Previous: Standard .Net SecureString
   * New Key Rotation Statistics (Now 10% of chance) - Previous: 5%
@@ -22,6 +23,13 @@ This project has a 1 main objectives:
   * Compiled against x86 Cpu Target (Allow to be Injected on Any Unmanaged Process)
   * Two Debugger Detections (Simple, yet powerfull)
   * Execution UI (For Encryption Only)
+  * Code Generation with T4 Template to Dynamically Obfuscate All Strings in ConfigurationManager.cs (ConfigurationManagerPartialGenerated.tf)
+  * Automatic Malware Packing as Encrypted Base64 File using PowerShell Script
+
+# New Features (Dropper)
+  * OTP Decryption to Securely Download  Malware Source on Internet
+  * SSL Pinning for Download Malware Binary and Decryption Image
+  * Handles Injection Process
   
 
 # Direct Ransomware Operation (Without Injection)
